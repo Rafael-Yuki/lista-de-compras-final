@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Storage } from '@ionic/storage-angular';
+
 
 @Component({
   selector: 'app-home',
@@ -7,20 +9,55 @@ import { Component } from '@angular/core';
 })
 export class HomePage {
 
-  constructor() {}
+  constructor(private storage:Storage) {
+    this.storage.create();
+  }
 
-  variavel_lista : string[] = [];
-  texto = ""
+  ngOnInit(){
+    this.atualizaLista();
+  }
 
-  adiciona() {
+  variavel_lista = [[]];
+  texto: string = "";
+  aux = 0;
+
+  async adiciona() {
     if (!(this.texto == "")) {
-      this.variavel_lista.push(this.texto);
+      //this.variavel_lista.push("0", this.texto);
+
+      this.variavel_lista.forEach(item => {
+        if(parseInt(item[0]) > this.aux) {
+          this.aux = parseInt(item[0]);
+        }
+      })
+      this.aux = this.aux + 1;
+      await this.storage.set(this.aux.toString(), this.texto);
+      this.atualizaLista();
       this.texto = "";
     }
 
+      /*
+    if (this.texto == "") {
+
+    } else{
+      this.variavel_lista.push(this.texto);
+      this.texto = "";
+    }*/
+
   }
 
-  //*ngFor = "let ___ of _______" ex: *ngFor = "let item of variavel_lista"
-  //[(ngModel)]="texto" -> input
+  atualizaLista() {
+    this.variavel_lista = [];
+    this.storage.forEach((value, key, index) => {
+      this.variavel_lista.push([key, value]);
+    })
+  }
+
+  remove(indice) {
+    this.variavel_lista.splice(indice, 1)
+  }
+
+  //*ngFor = "let elemento_da_lista of minhaLista" no item
+  //[(ngModel)]="texto" no input
 
 }
